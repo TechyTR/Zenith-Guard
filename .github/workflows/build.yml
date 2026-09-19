@@ -62,3 +62,4 @@ with:
 name: ZenithGuard-v1.0.{{ github.run_number }}-Signed-APK
 path: output/ZenithGuard-v1.0.{{ github.run_number }}-Signed.apk
 retention-days: 30
+run: ./gradlew assembleRelease
