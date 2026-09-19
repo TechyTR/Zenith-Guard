@@ -1,7 +1,6 @@
 name: Zenith Guard CI/CD Build & Sign APK
 ​on:
 push:
-branches:
 - ''
 pull_request:
 branches:
