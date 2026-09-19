@@ -37,9 +37,41 @@ jobs:
 
       # --------------------------------------------------
       # 3. Android SDK
+      # GitHub ubuntu-latest already contains Android SDK.
+      # We only make sure the required components exist.
       # --------------------------------------------------
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Prepare Android SDK
+        shell: bash
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+
+          if [ ! -f "$SDKMANAGER" ]; then
+            SDKMANAGER=$(find "$ANDROID_HOME/cmdline-tools" \
+              -type f \
+              -name sdkmanager \
+              | sort \
+              | tail -n 1)
+          fi
+
+          if [ -z "$SDKMANAGER" ] || [ ! -f "$SDKMANAGER" ]; then
+            echo "ERROR: sdkmanager bulunamadı!"
+            exit 1
+          fi
+
+          echo "Using sdkmanager:"
+          echo "$SDKMANAGER"
+
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+
+          "$SDKMANAGER" \
+            "platform-tools" \
+            "platforms;android-35" \
+            "build-tools;35.0.0"
+
+          echo "Android SDK preparation complete."
 
       # --------------------------------------------------
       # 4. Install Gradle
@@ -51,7 +83,7 @@ jobs:
 
       # --------------------------------------------------
       # 5. Recreate Gradle Wrapper
-      #    Existing broken gradlew is completely ignored.
+      # Existing broken gradlew is ignored.
       # --------------------------------------------------
       - name: Recreate Gradle Wrapper
         shell: bash
@@ -59,15 +91,14 @@ jobs:
           rm -f gradlew
           rm -f gradlew.bat
 
-          echo "Creating a fresh Gradle Wrapper..."
+          echo "Creating fresh Gradle Wrapper..."
 
           gradle wrapper
 
           chmod +x gradlew
 
-          echo "Gradle Wrapper created successfully."
-
           echo "Testing Gradle Wrapper..."
+
           ./gradlew --version
 
       # --------------------------------------------------
@@ -87,7 +118,8 @@ jobs:
             echo "Custom keystore detected."
             echo "Decoding keystore..."
 
-            echo "$KEYSTORE_BASE64" | base64 --decode > app/keystore/zenithguard.jks
+            echo "$KEYSTORE_BASE64" | base64 --decode \
+              > app/keystore/zenithguard.jks
 
           else
 
@@ -142,13 +174,11 @@ jobs:
             --no-daemon
 
       # --------------------------------------------------
-      # 8. Find APK
+      # 8. Locate APK
       # --------------------------------------------------
       - name: Locate Release APK
         shell: bash
         run: |
-          echo "Searching for generated APK..."
-
           APK_DIR="app/build/outputs/apk/release"
 
           if [ ! -d "$APK_DIR" ]; then
@@ -156,12 +186,15 @@ jobs:
             exit 1
           fi
 
-          GENERATED_APK=$(find "$APK_DIR" -type f -name "*.apk" | head -n 1)
+          GENERATED_APK=$(find "$APK_DIR" \
+            -type f \
+            -name "*.apk" \
+            | head -n 1)
 
           if [ -z "$GENERATED_APK" ]; then
             echo "ERROR: No APK was generated!"
 
-            echo "Contents of release directory:"
+            echo "Release directory contents:"
             find "$APK_DIR" -type f -print || true
 
             exit 1
@@ -180,10 +213,13 @@ jobs:
         run: |
           echo "Verifying APK signature..."
 
-          BUILD_TOOLS_DIR=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -n 1)
+          BUILD_TOOLS_DIR=$(ls -d \
+            "$ANDROID_HOME"/build-tools/* \
+            | sort -V \
+            | tail -n 1)
 
           if [ ! -f "$BUILD_TOOLS_DIR/apksigner" ]; then
-            echo "ERROR: apksigner was not found!"
+            echo "ERROR: apksigner not found!"
             exit 1
           fi
 
@@ -212,10 +248,8 @@ jobs:
           echo "Final APK:"
           ls -lh "$OUTPUT_APK"
 
-          echo "OUTPUT_APK=$OUTPUT_APK" >> "$GITHUB_ENV"
-
       # --------------------------------------------------
-      # 11. Upload APK Artifact
+      # 11. Upload Artifact
       # --------------------------------------------------
       - name: Upload Signed APK Artifact
         uses: actions/upload-artifact@v4
