@@ -1,0 +1,39 @@
+<!-- STREAMING_CHUNK:Declaring permissions for security scanning... -->
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:tools="http://schemas.android.com/tools">
+​<!-- Query all packages to inspect installed bloatware and dangerous permissions -->
+<uses-permission android.permission.QUERY_ALL_PACKAGES"
+tools:ignore="QueryAllPackagesPermission" />
+<uses-permission android.permission.KILL_BACKGROUND_PROCESSES" />
+<uses-permission android.permission.INTERNET" />
+​<application
+android:allowBackup="false"
+android:dataExtractionRules="@xml/data_extraction_rules"
+android:fullBackupContent="false"
+android:icon="@mipmap/ic_launcher"
+android:label="Zenith Guard"
+android:roundIcon="@mipmap/ic_launcher_round"
+android:supportsRtl="true"
+android:theme="@style/Theme.ZenithGuard"
+tools:targetApi="34">
+​<!-- STREAMING_CHUNK:Registering Shizuku Provider and Main Activity... -->
+<!-- Shizuku Provider Integration -->
+<provider
+android:name="rikka.shizuku.ShizukuProvider"
+android:authorities="${applicationId}.shizuku"
+android:multiprocess="false"
+android:enabled="true"
+android:exported="true"
+android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
+​<activity
+android:name=".ui.MainActivity"
+android:exported="true"
+android:theme="@style/Theme.ZenithGuard">
+<intent-filter>
+<action android:name="android.intent.action.MAIN" />
+<category android:name="android.intent.category.LAUNCHER" />
+</intent-filter>
+</activity>
+​</application>
+​</manifest>
