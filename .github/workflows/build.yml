@@ -1,9 +1,11 @@
 name: Zenith Guard CI/CD Build & Sign APK
 ​on:
 push:
-branches: [ "" ]
+branches:
+- ""
 pull_request:
-branches: [ "" ]
+branches:
+- ""
 workflow_dispatch:
 ​permissions:
 contents: write
@@ -49,7 +51,7 @@ run: ./gradlew assembleRelease --stacktrace
 ​- name: Verify APK Signature (Apksigner Check)
 run: |
 BUILD_TOOLS_DIR=$(ls -d $ANDROID_HOME/build-tools/* \vert{} tail -n 1)$BUILD_TOOLS_DIR/apksigner verify --verbose app/build/outputs/apk/release/app-release.apk || true
-echo "APK İmzalama Doğrulaması Tamamlandı!"
+echo "APK Signature Verification Complete!"
 ​- name: Organize Output Artifacts
 run: |
 mkdir -p output/
