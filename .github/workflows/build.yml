@@ -60,7 +60,7 @@ jobs:
               -dname "CN=ZenithGuard, OU=Security, O=Zenith, L=Istanbul, C=TR"
           fi
 
-      - name: Build Signed Release APK
+      - name: Build Release APK
         env:
           BUILD_NUMBER: ${{ github.run_number }}
           RELEASE_VERSION_NAME: 1.0.${{ github.run_number }}
@@ -76,35 +76,54 @@ jobs:
             -PKEY_PASSWORD="$KEY_PASSWORD" \
             --stacktrace
 
-      - name: Verify APK Signature
+      - name: Locate & Verify Signed APK
+        env:
+          BUILD_NUMBER: ${{ github.run_number }}
         run: |
-          APK_PATH="app/build/outputs/apk/release/app-release.apk"
+          APK_DIR="app/build/outputs/apk/release"
 
-          if [ ! -f "$APK_PATH" ]; then
-            echo "APK bulunamadı!"
+          echo "APK dosyaları aranıyor..."
+
+          if [ ! -d "$APK_DIR" ]; then
+            echo "HATA: Release APK klasörü bulunamadı!"
             exit 1
           fi
 
+          GENERATED_APK=$(find "$APK_DIR" -type f -name "*.apk" | head -n 1)
+
+          if [ -z "$GENERATED_APK" ]; then
+            echo "HATA: Derleme sonrası hiçbir APK dosyası bulunamadı!"
+            echo "APK klasörü içeriği:"
+            find "$APK_DIR" -maxdepth 2 -type f -print || true
+            exit 1
+          fi
+
+          echo "Bulunan APK: $GENERATED_APK"
+
           BUILD_TOOLS_DIR=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -n 1)
+
+          echo "APK imzası doğrulanıyor..."
 
           "$BUILD_TOOLS_DIR/apksigner" verify \
             --verbose \
-            "$APK_PATH"
+            "$GENERATED_APK"
 
           echo "APK Signature Verification Complete!"
 
-      - name: Organize Output Artifacts
-        run: |
           mkdir -p output
 
-          cp \
-            app/build/outputs/apk/release/app-release.apk \
-            "output/ZenithGuard-v1.0.${{ github.run_number }}-Signed.apk"
+          OUTPUT_APK="output/ZenithGuard-v1.0.${BUILD_NUMBER}-Signed.apk"
+
+          cp "$GENERATED_APK" "$OUTPUT_APK"
+
+          echo "Final APK:"
+          ls -lh "$OUTPUT_APK"
 
       - name: Upload Signed APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ZenithGuard-v1.0.${{ github.run_number }}-Signed-APK
           path: output/ZenithGuard-v1.0.${{ github.run_number }}-Signed.apk
+          if-no-files-found: error
           retention-days: 30
 
