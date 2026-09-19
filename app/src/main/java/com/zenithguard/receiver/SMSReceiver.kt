@@ -1,55 +1,56 @@
 ```kotlin
+// DOSYA KONUMU: app/src/main/java/com/zenithguard/receivers/PackageReceiver.kt
+
 package com.zenithguard.receivers
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.provider.Telephony
+import android.content.pm.PackageManager
 import android.util.Log
 import com.zenithguard.core.ProtectionEngine
 
-/**
- * Zenith Guard - SMS & Phishing Dolandırıcılık Engelleyici
- * Gelen SMS mesajlarında sahte banka bağlantılarını ve oltama (phishing) linklerini süzer.
- */
-class SmsReceiver : BroadcastReceiver() {
-
-    private val suspiciousKeywords = listOf(
-        "tebrikler kazandınız", "hesabınız askıya alındı", "banka doğrulama",
-        "tıklayın", "pTT kargo", "icra takibi", "aidat iadesi", "giriş yapın"
-    )
-
-    private val suspiciousDomains = listOf(
-        "bit.ly", "tinyurl.com", ".xyz", ".top", ".tk", ".site", "banka-guncelle"
-    )
+class PackageReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == Telephony.Sms.Intents.SMS_RECEIVED_ACTION) {
+        val action = intent.action
+        if (action == Intent.ACTION_PACKAGE_ADDED || action == Intent.ACTION_PACKAGE_REPLACED) {
+            val packageName = intent.data?.schemeSpecificPart ?: return
+            
             val protectionEngine = ProtectionEngine(context)
-            if (!protectionEngine.isModuleEnabled(ProtectionEngine.MODULE_SMS_ANTI_PHISHING, true)) {
+            if (!protectionEngine.isModuleEnabled(ProtectionEngine.MODULE_REALTIME_INSTALL, true)) {
                 return
             }
 
-            val messages = Telephony.Sms.Intents.getMessagesFromIntent(intent)
-            for (sms in messages) {
-                val messageBody = sms.messageBody ?: continue
-                val sender = sms.originatingAddress ?: "Bilinmeyen Gönderici"
-
-                val isPhishing = checkPhishingContent(messageBody)
-                if (isPhishing) {
-                    Log.e("ZenithGuard", "ŞÜPHELİ SMS ENGELLEDİ! Gönderici: $sender | İçerik: $messageBody")
-                    // Zararlı SMS tespit uyarısı
-                }
-            }
+            Log.d("ZenithGuard", "Yeni uygulama tespit edildi: $packageName. Canlı analiz başlatılıyor...")
+            analyzePackagePermissions(context, packageName)
         }
     }
 
-    private fun checkPhishingContent(text: String): Boolean {
-        val lowerText = text.lowercase()
-        val hasKeyword = suspiciousKeywords.any { lowerText.contains(it) }
-        val hasSuspiciousLink = suspiciousDomains.any { lowerText.contains(it) }
+    private fun analyzePackagePermissions(context: Context, packageName: String) {
+        try {
+            val pm = context.packageManager
+            val pkgInfo = pm.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS)
+            val requestedPermissions = pkgInfo.requestedPermissions ?: return
 
-        return hasKeyword || hasSuspiciousLink
+            val suspiciousPermissions = mutableListOf<String>()
+            for (perm in requestedPermissions) {
+                when (perm) {
+                    android.Manifest.permission.READ_SMS,
+                    android.Manifest.permission.RECEIVE_SMS -> suspiciousPermissions.add("SMS Okuma/Alma")
+                    android.Manifest.permission.READ_CONTACTS -> suspiciousPermissions.add("Rehber Erişimi")
+                    android.Manifest.permission.RECORD_AUDIO -> suspiciousPermissions.add("Mikrofon Erişimi")
+                    android.Manifest.permission.CAMERA -> suspiciousPermissions.add("Kamera Erişimi")
+                    android.Manifest.permission.SYSTEM_ALERT_WINDOW -> suspiciousPermissions.add("Ekranda Üst Katman Oluşturma (Overlay)")
+                }
+            }
+
+            if (suspiciousPermissions.isNotEmpty()) {
+                Log.w("ZenithGuard", "TEHLİKE TESPİT EDİLDİ: $packageName şu hassas izinleri istiyor: $suspiciousPermissions")
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }
 ```
