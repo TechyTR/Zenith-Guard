@@ -1,4 +1,6 @@
 ```kotlin
+// DOSYA KONUMU: app/src/main/java/com/zenithguard/core/ShizukuManager.kt
+
 package com.zenithguard.core
 
 import android.content.Context
@@ -7,10 +9,6 @@ import rikka.shizuku.Shizuku
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
-/**
- * Zenith Guard - Shizuku ADB Deep Command Bridge
- * Root yetkisine ihtiyaç duymadan cihaz üzerinde maksimum denetim sağlar.
- */
 class ShizukuManager(private val context: Context) {
 
     interface ShizukuStateCallback {
@@ -50,9 +48,6 @@ class ShizukuManager(private val context: Context) {
         }
     }
 
-    /**
-     * 1. Uygulama Dondurma (Freeze/Disable Bloatware)
-     */
     fun freezePackage(packageName: String): Boolean {
         if (!hasShizukuPermission()) return false
         val command = "pm disable-user --user 0 $packageName"
@@ -60,9 +55,6 @@ class ShizukuManager(private val context: Context) {
         return result.contains("disabled-user") || result.contains("new state: disabled-user")
     }
 
-    /**
-     * 2. Uygulama Çözme (Unfreeze/Enable)
-     */
     fun unfreezePackage(packageName: String): Boolean {
         if (!hasShizukuPermission()) return false
         val command = "pm enable $packageName"
@@ -70,10 +62,6 @@ class ShizukuManager(private val context: Context) {
         return result.contains("enabled") || result.contains("new state: enabled")
     }
 
-    /**
-     * 3. Derin İzin İptali (Revoke Dangerous Permission via ADB)
-     * Kullanıcı arayüzüne girmeden şüpheli izinleri doğrudan iptal eder.
-     */
     fun revokePermission(packageName: String, permission: String): Boolean {
         if (!hasShizukuPermission()) return false
         val command = "pm revoke $packageName $permission"
@@ -81,10 +69,6 @@ class ShizukuManager(private val context: Context) {
         return !result.contains("Error") && !result.contains("Exception")
     }
 
-    /**
-     * 4. Zorla Durdurma (Force Stop Process)
-     * Arka planda gizlice çalışan casus veya kaynak tüketen süreçleri anında öldürür.
-     */
     fun forceStopApp(packageName: String): Boolean {
         if (!hasShizukuPermission()) return false
         val command = "am force-stop $packageName"
@@ -92,10 +76,6 @@ class ShizukuManager(private val context: Context) {
         return true
     }
 
-    /**
-     * 5. AppOps Arka Plan Çalışma Kısıtlaması (AppOps Lockdown)
-     * Arka planda kamera, mikrofon veya konum kullanımını sistem seviyesinde engeller.
-     */
     fun setAppOpRestriction(packageName: String, opName: String, allow: Boolean): Boolean {
         if (!hasShizukuPermission()) return false
         val mode = if (allow) "allow" else "ignore"
@@ -104,10 +84,6 @@ class ShizukuManager(private val context: Context) {
         return !result.contains("Error")
     }
 
-    /**
-     * 6. Derin Uyku / Standby Modu (Set App Inactive)
-     * Uygulamayı sıfır kaynak tüketen 'Inactive' moduna sokar.
-     */
     fun setAppInactive(packageName: String, inactive: Boolean): Boolean {
         if (!hasShizukuPermission()) return false
         val state = if (inactive) "true" else "false"
