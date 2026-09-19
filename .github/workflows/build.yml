@@ -29,25 +29,26 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      - name: Fix Line Endings, BOM and Permissions for Gradle Wrapper
+         - name: Install Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
+
+      - name: Recreate Gradle Wrapper
         run: |
-          python3 -c "
-          with open('gradlew', 'rb') as f:
-              content = f.read()
+          rm -f gradlew
+          rm -f gradlew.bat
 
-          if content.startswith(b'\xef\xbb\xbf'):
-              content = content[3:]
-
-          content = content.replace(b'\r\n', b'\n').replace(b'\r', b'\n')
-
-          with open('gradlew', 'wb') as f:
-              f.write(content)
-          "
+          gradle wrapper
 
           chmod +x gradlew
 
-          echo "Gradle Wrapper first lines:"
-          head -n 2 gradlew
+          echo "Generated Gradle Wrapper:"
+          head -n 10 gradlew
+
+          echo "Testing Gradle Wrapper:"
+          ./gradlew --version
+
 
       - name: Prepare Keystore & Credentials
         env:
