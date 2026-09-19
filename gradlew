@@ -1,60 +1,76 @@
-#!/usr/bin/env sh
-​##############################################################################
-​
-​Gradle start up script for UN*X
-​
-​##############################################################################
-​Attempt to set APP_HOME
-​PRG="$0"
-while [ -h "$PRG" ]; do
-ls=ls -ld "$PRG"
-link=expr "$ls" : '.*-> \(.*\)$'
-if expr "$link" : '/.*' > /dev/null; then
-PRG="$link"
-else
-PRG=dirname "$PRG"/"$link"
-fi
-done
-​SAVED="pwd"
-CDPATH=
-cd "dirname \"$PRG\"/" >/dev/null
-APP_HOME="pwd -P"
-cd "$SAVED" >/dev/null
-​APP_NAME="Gradle"
-APP_BASE_NAME=basename "$0"
-​DEFAULT_JVM_OPTS='"-Xmx64m" "-Xms64m"'
-​OS specific support.
-​cygwin=false
-msys=false
-darwin=false
-nonstop=false
-case "uname" in
-CYGWIN* ) cygwin=true ;;
-Darwin* ) darwin=true ;;
-MINGW* ) msys=true ;;
-NONSTOP* ) nonstop=true ;;
-esac
-​CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
-​if [ -n "$JAVA_HOME" ] ; then
-if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
-JAVACMD="$JAVA_HOME/jre/sh/java"
-else
-JAVACMD="$JAVA_HOME/bin/java"
-fi
-if [ ! -x "$JAVACMD" ] ; then
-echo "ERROR: JAVA_HOME is set to an invalid directory: $JAVA_HOME" >&2
-exit 1
-fi
-else
-JAVACMD="java"
-which java >/dev/null 2>&1 || {
-echo "ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH." >&2
-exit 1
+```kotlin
+plugins {
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
 }
-fi
-​if [ "$cygwin" = "true" -o "$msys" = "true" ] ; then
-APP_HOME=cygpath --path --windows "$APP_HOME"
-CLASSPATH=cygpath --path --windows "$CLASSPATH"
-JAVACMD=cygpath --path --windows "$JAVACMD"
-fi
-​exec "$JAVACMD" $DEFAULT_JVM_OPTS $GRADLE_OPTS "-Dorg.gradle.appname=$APP_BASE_NAME" -classpath "CLASSPATH" org.gradle.wrapper.GradleWrapperMain "@"
+
+// Otomatik artan CI/CD Sürüm Numarası (Varsayılan: 1)
+val envVersionCode = System.getenv("BUILD_NUMBER")?.toIntOrNull() ?: 1
+val envVersionName = System.getenv("RELEASE_VERSION_NAME") ?: "1.0.0"
+
+android {
+    namespace = "com.zenithguard"
+    compileSdk = 34
+
+    defaultConfig {
+        applicationId = "com.zenithguard"
+        minSdk = 26
+        targetSdk = 34
+        versionCode = envVersionCode
+        versionName = envVersionName
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        create("release") {
+            val keystoreFile = file("keystore/zenithguard.jks")
+            storeFile = keystoreFile
+            storePassword = System.getenv("KEYSTORE_PASSWORD") ?: "ZenithGuard123!"
+            keyAlias = System.getenv("KEY_ALIAS") ?: "zenithguard_key"
+            keyPassword = System.getenv("KEY_PASSWORD") ?: "ZenithGuard123!"
+        }
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            signingConfig = signingConfigs.getByName("release")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
+    buildFeatures {
+        compose = true
+    }
+}
+
+dependencies {
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.activity.compose)
+
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.graphics)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.compose.material3)
+
+    implementation("dev.rikka.shizuku:api:13.1.5")
+    implementation("dev.rikka.shizuku:provider:13.1.5")
+}
+```
