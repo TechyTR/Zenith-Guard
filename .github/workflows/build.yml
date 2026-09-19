@@ -1,4 +1,4 @@
-name: Zenith Guard CI/CD Build & Sign APK
+ name: Zenith Guard CI/CD Build & Sign APK
 ​on:
 push:
 branches:
