@@ -2,6 +2,7 @@
 package com.zenithguard.ui
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.animateColor
@@ -21,6 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -49,42 +51,31 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun DashboardScreen(shizukuManager: ShizukuManager, protectionEngine: ProtectionEngine) {
+    val context = LocalContext.current
     var isShizukuActive by remember { mutableStateOf(shizukuManager.hasShizukuPermission()) }
     var modules by remember { mutableStateOf(protectionEngine.getModules(isShizukuActive)) }
 
-    // OriginOS / HarmonyOS / OneUI Tarzı Akıcı Canlı Renk Geçiş Animasyonu
     val infiniteTransition = rememberInfiniteTransition(label = "os_gradient")
     val color1 by infiniteTransition.animateColor(
         initialValue = Color(0xFF0F172A),
         targetValue = Color(0xFF0284C7),
-        animationSpec = infiniteRepeatable(
-            animation = tween(6000, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
+        animationSpec = infiniteRepeatable(tween(6000, easing = LinearEasing), RepeatMode.Reverse),
         label = "color1"
     )
     val color2 by infiniteTransition.animateColor(
         initialValue = Color(0xFF311B92),
         targetValue = Color(0xFF0D9488),
-        animationSpec = infiniteRepeatable(
-            animation = tween(8000, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
+        animationSpec = infiniteRepeatable(tween(8000, easing = LinearEasing), RepeatMode.Reverse),
         label = "color2"
     )
     val color3 by infiniteTransition.animateColor(
         initialValue = Color(0xFF020617),
         targetValue = Color(0xFF1E1B4B),
-        animationSpec = infiniteRepeatable(
-            animation = tween(7000, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
+        animationSpec = infiniteRepeatable(tween(7000, easing = LinearEasing), RepeatMode.Reverse),
         label = "color3"
     )
 
-    val animatedGradient = Brush.verticalGradient(
-        colors = listOf(color1, color2, color3)
-    )
+    val animatedGradient = Brush.verticalGradient(colors = listOf(color1, color2, color3))
 
     Column(
         modifier = Modifier
@@ -92,7 +83,7 @@ fun DashboardScreen(shizukuManager: ShizukuManager, protectionEngine: Protection
             .background(Color(0xFF0B0F17))
             .padding(16.dp)
     ) {
-        // --- OriginOS / HarmonyOS / OneUI Tarzı Premium Sürüm Kartı ---
+        // OriginOS / HarmonyOS / OneUI Style Head Banner
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -101,22 +92,15 @@ fun DashboardScreen(shizukuManager: ShizukuManager, protectionEngine: Protection
                 .border(
                     width = 1.dp,
                     brush = Brush.verticalGradient(
-                        colors = listOf(
-                            Color.White.copy(alpha = 0.35f),
-                            Color.White.copy(alpha = 0.05f)
-                        )
+                        colors = listOf(Color.White.copy(alpha = 0.35f), Color.White.copy(alpha = 0.05f))
                     ),
                     shape = RoundedCornerShape(28.dp)
                 )
                 .shadow(16.dp, RoundedCornerShape(28.dp))
-                .padding(24.dp),
+                .padding(20.dp),
             contentAlignment = Alignment.Center
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                // Üst Durum Rozeti
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Surface(
                     color = Color.White.copy(alpha = 0.15f),
                     shape = RoundedCornerShape(50)
@@ -131,41 +115,35 @@ fun DashboardScreen(shizukuManager: ShizukuManager, protectionEngine: Protection
                     )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
-                // Zenith Version Etiketi
                 Text(
                     text = "Zenith Version",
                     color = Color.White.copy(alpha = 0.85f),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    letterSpacing = 1.sp
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Medium
                 )
 
-                // Devasa Sürüm Numarası (OneUI / HarmonyOS Style)
                 Text(
                     text = "1",
                     color = Color.White,
-                    fontSize = 80.sp,
+                    fontSize = 72.sp,
                     fontWeight = FontWeight.Black,
-                    lineHeight = 84.sp,
+                    lineHeight = 76.sp,
                     textAlign = TextAlign.Center
                 )
 
-                Spacer(modifier = Modifier.height(4.dp))
-
                 Text(
-                    text = "Zenith Guard Lite Core • Build #1",
+                    text = "Zenith Guard Core • Build #1",
                     color = Color.White.copy(alpha = 0.7f),
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Normal
+                    fontSize = 12.sp
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-        // Shizuku ADB Durum Kartı
+        // Shizuku ADB Control Card
         Card(
             colors = CardDefaults.cardColors(containerColor = Color(0xFF161B22)),
             shape = RoundedCornerShape(16.dp),
@@ -184,12 +162,12 @@ fun DashboardScreen(shizukuManager: ShizukuManager, protectionEngine: Protection
                 Spacer(modifier = Modifier.width(10.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "Shizuku ADB Ayrıcalığı",
+                        text = "Shizuku ADB Süper Ayrıcalığı",
                         color = Color.Gray,
                         fontSize = 11.sp
                     )
                     Text(
-                        text = if (isShizukuActive) "Aktif (Derin Güvenlik Hazır)" else "Pasif (Standart Koruma)",
+                        text = if (isShizukuActive) "Aktif (Derin Kilit ve AppOps Hazır)" else "Pasif (Standart Mod)",
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         fontSize = 13.sp
@@ -207,19 +185,30 @@ fun DashboardScreen(shizukuManager: ShizukuManager, protectionEngine: Protection
                     ) {
                         Text("Yetki Ver", color = Color.Black, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
+                } else {
+                    Button(
+                        onClick = {
+                            shizukuManager.forceStopApp("com.facebook.katana")
+                            Toast.makeText(context, "Derin ADB Temizliği Yapıldı!", Toast.LENGTH_SHORT).show()
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFA855F7)),
+                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
+                    ) {
+                        Text("Derin Temizle", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    }
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(18.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "GÜVENLİK VE KORUMA MODÜLLERİ",
+            text = "GÜVENLİK VE DERİN DENETİM MODÜLLERİ",
             color = Color.Gray,
             fontSize = 11.sp,
             fontWeight = FontWeight.Bold,
             letterSpacing = 1.sp,
-            modifier = Modifier.padding(start = 4.dp, bottom = 10.dp)
+            modifier = Modifier.padding(start = 4.dp, bottom = 8.dp)
         )
 
         LazyColumn(
