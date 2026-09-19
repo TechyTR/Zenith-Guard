@@ -82,12 +82,3 @@ with:
 name: ZenithGuard-v1.0.{{ github.run_number }}-Signed-APK
 path: output/ZenithGuard-v1.0.{{ github.run_number }}-Signed.apk
 retention-days: 30
-
-      - name: Upload Signed APK Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ZenithGuard-v1.0.${{ github.run_number }}-Signed-APK
-          path: output/ZenithGuard-v1.0.${{ github.run_number }}-Signed.apk
-          if-no-files-found: error
-          retention-days: 30
-
