@@ -4,17 +4,25 @@ package com.zenithguard.ui
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.zenithguard.core.ProtectionEngine
@@ -44,54 +52,136 @@ fun DashboardScreen(shizukuManager: ShizukuManager, protectionEngine: Protection
     var isShizukuActive by remember { mutableStateOf(shizukuManager.hasShizukuPermission()) }
     var modules by remember { mutableStateOf(protectionEngine.getModules(isShizukuActive)) }
 
+    // OriginOS / HarmonyOS / OneUI Tarzı Akıcı Canlı Renk Geçiş Animasyonu
+    val infiniteTransition = rememberInfiniteTransition(label = "os_gradient")
+    val color1 by infiniteTransition.animateColor(
+        initialValue = Color(0xFF0F172A),
+        targetValue = Color(0xFF0284C7),
+        animationSpec = infiniteRepeatable(
+            animation = tween(6000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "color1"
+    )
+    val color2 by infiniteTransition.animateColor(
+        initialValue = Color(0xFF311B92),
+        targetValue = Color(0xFF0D9488),
+        animationSpec = infiniteRepeatable(
+            animation = tween(8000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "color2"
+    )
+    val color3 by infiniteTransition.animateColor(
+        initialValue = Color(0xFF020617),
+        targetValue = Color(0xFF1E1B4B),
+        animationSpec = infiniteRepeatable(
+            animation = tween(7000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "color3"
+    )
+
+    val animatedGradient = Brush.verticalGradient(
+        colors = listOf(color1, color2, color3)
+    )
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF0D1117))
+            .background(Color(0xFF0B0F17))
             .padding(16.dp)
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+        // --- OriginOS / HarmonyOS / OneUI Tarzı Premium Sürüm Kartı ---
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(28.dp))
+                .background(animatedGradient)
+                .border(
+                    width = 1.dp,
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color.White.copy(alpha = 0.35f),
+                            Color.White.copy(alpha = 0.05f)
+                        )
+                    ),
+                    shape = RoundedCornerShape(28.dp)
+                )
+                .shadow(16.dp, RoundedCornerShape(28.dp))
+                .padding(24.dp),
+            contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = "ZENITH",
-                fontWeight = FontWeight.Black,
-                fontSize = 22.sp,
-                color = Color.White
-            )
-            Text(
-                text = "GUARD",
-                fontWeight = FontWeight.Black,
-                fontSize = 22.sp,
-                color = Color(0xFF38BDF8)
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            Surface(
-                color = Color(0xFF38BDF8).copy(alpha = 0.15f),
-                shape = RoundedCornerShape(12.dp)
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
+                // Üst Durum Rozeti
+                Surface(
+                    color = Color.White.copy(alpha = 0.15f),
+                    shape = RoundedCornerShape(50)
+                ) {
+                    Text(
+                        text = "SİSTEM GÜVENLİ VE GÜNCEL",
+                        color = Color.White,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        letterSpacing = 1.5.sp,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Zenith Version Etiketi
                 Text(
-                    text = "Max Protection Core",
-                    color = Color(0xFF38BDF8),
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                    text = "Zenith Version",
+                    color = Color.White.copy(alpha = 0.85f),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    letterSpacing = 1.sp
+                )
+
+                // Devasa Sürüm Numarası (OneUI / HarmonyOS Style)
+                Text(
+                    text = "1",
+                    color = Color.White,
+                    fontSize = 80.sp,
+                    fontWeight = FontWeight.Black,
+                    lineHeight = 84.sp,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = "Zenith Guard Lite Core • Build #1",
+                    color = Color.White.copy(alpha = 0.7f),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Normal
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
+        // Shizuku ADB Durum Kartı
         Card(
             colors = CardDefaults.cardColors(containerColor = Color(0xFF161B22)),
-            shape = RoundedCornerShape(14.dp),
+            shape = RoundedCornerShape(16.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
             Row(
-                modifier = Modifier.padding(14.dp),
+                modifier = Modifier.padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .clip(CircleShape)
+                        .background(if (isShizukuActive) Color(0xFF10B981) else Color(0xFFF59E0B))
+                )
+                Spacer(modifier = Modifier.width(10.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = "Shizuku ADB Ayrıcalığı",
@@ -100,9 +190,9 @@ fun DashboardScreen(shizukuManager: ShizukuManager, protectionEngine: Protection
                     )
                     Text(
                         text = if (isShizukuActive) "Aktif (Derin Güvenlik Hazır)" else "Pasif (Standart Koruma)",
-                        color = if (isShizukuActive) Color(0xFF10B981) else Color(0xFFF59E0B),
+                        color = Color.White,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
+                        fontSize = 13.sp
                     )
                 }
                 if (!isShizukuActive) {
@@ -112,7 +202,8 @@ fun DashboardScreen(shizukuManager: ShizukuManager, protectionEngine: Protection
                             isShizukuActive = shizukuManager.hasShizukuPermission()
                             modules = protectionEngine.getModules(isShizukuActive)
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF38BDF8))
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF38BDF8)),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
                     ) {
                         Text("Yetki Ver", color = Color.Black, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
@@ -120,14 +211,15 @@ fun DashboardScreen(shizukuManager: ShizukuManager, protectionEngine: Protection
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(18.dp))
 
         Text(
             text = "GÜVENLİK VE KORUMA MODÜLLERİ",
             color = Color.Gray,
-            fontSize = 12.sp,
+            fontSize = 11.sp,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(start = 4.dp, bottom = 8.dp)
+            letterSpacing = 1.sp,
+            modifier = Modifier.padding(start = 4.dp, bottom = 10.dp)
         )
 
         LazyColumn(
@@ -151,7 +243,7 @@ fun DashboardScreen(shizukuManager: ShizukuManager, protectionEngine: Protection
 fun ModuleToggleCard(module: ProtectionModule, onToggleChanged: (Boolean) -> Unit) {
     Card(
         colors = CardDefaults.cardColors(containerColor = Color(0xFF161B22)),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(14.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
@@ -175,7 +267,7 @@ fun ModuleToggleCard(module: ProtectionModule, onToggleChanged: (Boolean) -> Uni
                             shape = RoundedCornerShape(4.dp)
                         ) {
                             Text(
-                                text = "ADB/Shizuku",
+                                text = "ADB",
                                 color = Color(0xFFA855F7),
                                 fontSize = 9.sp,
                                 fontWeight = FontWeight.Bold,
@@ -213,94 +305,11 @@ fun ModuleToggleCard(module: ProtectionModule, onToggleChanged: (Boolean) -> Uni
 fun ZenithGuardTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = darkColorScheme(
-            background = Color(0xFF0D1117),
+            background = Color(0xFF0B0F17),
             surface = Color(0xFF161B22),
             primary = Color(0xFF38BDF8)
         ),
         content = content
     )
-}
-
-@Composable
-fun DashboardScreen(shizukuManager: ShizukuManager) {
-    var isShizukuActive by remember { mutableStateOf(shizukuManager.hasShizukuPermission()) }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF0D1117))
-            .padding(20.dp)
-    ) {
-        // App Header
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = "ZENITH",
-                fontWeight = FontWeight.Black,
-                fontSize = 24.sp,
-                color = Color.White
-            )
-            Text(
-                text = "GUARD",
-                fontWeight = FontWeight.Black,
-                fontSize = 24.sp,
-                color = Color(0xFF38BDF8)
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            Surface(
-                color = Color(0xFF38BDF8).copy(alpha = 0.15f),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(
-                    text = "Lite Core v1.0",
-                    color = Color(0xFF38BDF8),
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Status Card
-        Card(
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF161B22)),
-            shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(modifier = Modifier.padding(20.dp)) {
-                Text(
-                    text = "Shizuku ADB Durumu",
-                    color = Color.Gray,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                Text(
-                    text = if (isShizukuActive) "Aktif - Tam Yetkili" else "Pasif - Bağlantı Bekleniyor",
-                    color = if (isShizukuActive) Color(0xFF10B981) else Color(0xFFF59E0B),
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(14.dp))
-                Button(
-                    onClick = {
-                        shizukuManager.requestPermission(1001)
-                        isShizukuActive = shizukuManager.hasShizukuPermission()
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF38BDF8))
-                ) {
-                    Text(
-                        text = if (isShizukuActive) "Sistem Uygulamalarını Dondur" else "Shizuku İzni İste",
-                        color = Color.Black,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-        }
-    }
 }
 ```
