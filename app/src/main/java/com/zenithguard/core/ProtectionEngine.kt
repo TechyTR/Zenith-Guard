@@ -1,4 +1,6 @@
 ```kotlin
+// DOSYA KONUMU: app/src/main/java/com/zenithguard/core/ProtectionEngine.kt
+
 package com.zenithguard.core
 
 import android.content.Context
@@ -13,9 +15,6 @@ data class ProtectionModule(
     val category: String
 )
 
-/**
- * Zenith Guard - Maximum Protection Engine
- */
 class ProtectionEngine(private val context: Context) {
 
     private val prefs: SharedPreferences = context.getSharedPreferences("zenith_security_prefs", Context.MODE_PRIVATE)
