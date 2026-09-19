@@ -1,10 +1,12 @@
 name: Zenith Guard CI/CD Build & Sign APK
 ​on:
 push:
+branches:
+- main
 - ''
 pull_request:
 branches:
-- ''
+- main
 workflow_dispatch:
 ​permissions:
 contents: write
@@ -61,4 +63,3 @@ with:
 name: ZenithGuard-v1.0.{{ github.run_number }}-Signed-APK
 path: output/ZenithGuard-v1.0.{{ github.run_number }}-Signed.apk
 retention-days: 30
-
