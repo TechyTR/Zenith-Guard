@@ -1,4 +1,6 @@
 ```kotlin
+// DOSYA KONUMU: app/src/main/java/com/zenithguard/core/SecurityScanner.kt
+
 package com.zenithguard.core
 
 import android.content.Context
@@ -11,13 +13,9 @@ data class AppRiskReport(
     val isSystemApp: Boolean,
     val isBloatwareCandidate: Boolean,
     val dangerousPermissions: List<String>,
-    val riskScore: Int // 0 to 100
+    val riskScore: Int
 )
 
-/**
- * Zenith Guard - Ultra-Light Security Scanner
- * Scans installed apps for bloatware and privacy risks without dragging CPU/RAM.
- */
 class SecurityScanner(private val context: Context) {
 
     private val packageManager: PackageManager = context.packageManager
@@ -27,7 +25,6 @@ class SecurityScanner(private val context: Context) {
         val reports = mutableListOf<AppRiskReport>()
 
         for (pkg in installedPackages) {
-            // Ignore system core processes unless they are typical vendor bloatware
             val isSystem = (pkg.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
             val requestedPermissions = pkg.requestedPermissions ?: emptyArray()
 
