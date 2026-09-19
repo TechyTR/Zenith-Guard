@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- DOSYA KONUMU: app/src/main/AndroidManifest.xml -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 xmlns:tools="http://schemas.android.com/tools">
-​<!-- Sistem Güvenliği ve Tarama İzinleri -->
-<uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" 
+​<uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" 
 tools:ignore="QueryAllPackagesPermission" />
 <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
 <uses-permission android:name="android.permission.INTERNET" />
@@ -19,17 +19,14 @@ android:roundIcon="@mipmap/ic_launcher_round"
 android:supportsRtl="true"
 android:theme="@style/Theme.ZenithGuard"
 tools:targetApi="34">
-​<!-- Shizuku Entegrasyon Provider -->
-<provider
+​<provider
 android:name="rikka.shizuku.ShizukuProvider"
 android:authorities="${applicationId}.shizuku"
 android:multiprocess="false"
 android:enabled="true"
 android:exported="true"
 android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
-​<!-- Zenith Guard Dinleyicileri (Broadcast Receivers) -->
-​<!-- Canlı Kurulum Dinleyicisi -->
-<receiver
+​<receiver
 android:name=".receivers.PackageReceiver"
 android:enabled="true"
 android:exported="true">
@@ -39,8 +36,7 @@ android:exported="true">
 <data android:scheme="package" />
 </intent-filter>
 </receiver>
-​<!-- SMS Anti-Phishing Dinleyicisi -->
-<receiver
+​<receiver
 android:name=".receivers.SmsReceiver"
 android:enabled="true"
 android:exported="true"
@@ -49,8 +45,7 @@ android:permission="android.permission.BROADCAST_SMS">
 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
 </intent-filter>
 </receiver>
-​<!-- Ekran Kapanış Dondurucusu -->
-<receiver
+​<receiver
 android:name=".receivers.ScreenStateReceiver"
 android:enabled="true"
 android:exported="false">
@@ -58,8 +53,7 @@ android:exported="false">
 <action android:name="android.intent.action.SCREEN_OFF" />
 </intent-filter>
 </receiver>
-​<!-- Ana Uygulama Arayüzü -->
-<activity
+​<activity
 android:name=".ui.MainActivity"
 android:exported="true"
 android:theme="@style/Theme.ZenithGuard">
