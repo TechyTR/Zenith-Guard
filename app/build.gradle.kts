@@ -1,4 +1,3 @@
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -52,6 +51,10 @@ android {
         jvmTarget = "17"
     }
 
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.14"
+    }
+
     buildFeatures {
         compose = true
     }
@@ -71,4 +74,3 @@ dependencies {
     implementation("dev.rikka.shizuku:api:13.1.5")
     implementation("dev.rikka.shizuku:provider:13.1.5")
 }
-```
