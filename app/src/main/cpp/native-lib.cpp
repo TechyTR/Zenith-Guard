@@ -1,4 +1,3 @@
-```cpp
 #include <jni.h>
 #include <string>
 #include <unistd.h>
@@ -42,4 +41,3 @@ Java_com_zenithguard_core_NativeSecurityEngine_nativeGetSecurityHash(JNIEnv *env
 }
 
 }
-```
