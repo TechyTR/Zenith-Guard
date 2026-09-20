@@ -1,6 +1,3 @@
-```kotlin
-// DOSYA KONUMU: app/src/main/java/com/zenithguard/core/ShizukuManager.kt
-
 package com.zenithguard.core
 
 import android.content.Context
@@ -111,4 +108,3 @@ class ShizukuManager(private val context: Context) {
         }
     }
 }
-```
