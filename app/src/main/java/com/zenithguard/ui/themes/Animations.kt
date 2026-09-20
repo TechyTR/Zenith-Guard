@@ -1,4 +1,3 @@
-```kotlin
 package com.zenithguard.ui.theme
 
 import androidx.compose.animation.animateColor
@@ -36,4 +35,3 @@ fun rememberAnimatedOSGradient(): Brush {
 
     return Brush.verticalGradient(colors = listOf(color1, color2, color3))
 }
-```
