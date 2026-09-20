@@ -1,6 +1,3 @@
-```kotlin
-// DOSYA KONUMU: app/src/main/java/com/zenithguard/core/SecurityScanner.kt
-
 package com.zenithguard.core
 
 import android.content.Context
@@ -85,4 +82,3 @@ class SecurityScanner(private val context: Context) {
         return reports.sortedByDescending { it.riskScore }
     }
 }
-```
