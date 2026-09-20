@@ -1,55 +1,65 @@
-package com.zenithguard.receivers
+package com.zenithguard.core
 
-import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Intent
 import android.util.Log
-import com.zenithguard.core.ProtectionEngine
-import com.zenithguard.core.ShizukuManager
 
-class ScreenStateReceiver : BroadcastReceiver() {
+/**
+ * Zenith Guard native security engine facade.
+ *
+ * Native/NDK engine hazır olduğunda JNI çağrıları burada toplanabilir.
+ * Şimdilik Kotlin güvenlik katmanına güvenli bir facade sağlar.
+ */
+class NativeSecurityEngine(
+    private val context: Context
+) {
 
-    override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == Intent.ACTION_SCREEN_SCREEN_OFF || intent.action == Intent.ACTION_SCREEN_OFF) {
-            val protectionEngine = ProtectionEngine(context)
-            val shizukuManager = ShizukuManager(context)
+    companion object {
+        private const val TAG = "ZenithNativeEngine"
+    }
 
-            if (!protectionEngine.isModuleEnabled(ProtectionEngine.MODULE_AUTO_FREEZER, false)) {
-                return
-            }
+    private var initialized = false
 
-            if (!shizukuManager.hasShizukuPermission()) {
-                Log.d("ZenithGuard", "Shizuku yetkisi olmadığından otomatik dondurma atlandı.")
-                return
-            }
-
-            // ÖNEMLİ GÜVENLİK KONTROLÜ: Kullanıcının aktif olarak kullandığı veya kritik öneme sahip 
-            // arka plan işlemleri yürüten uygulamaların (örneğin mesajlaşma, müzik çalma, aktif servisler)
-            // rastgele dondurulmasını engellemek için beyaz liste veya kullanıcı onay kontrolü uygulanır.
-            Log.d("ZenithGuard", "Ekran kapandı! Kritik arka plan süreçleri taranıyor...")
-
-            val candidateTargetsToFreeze = listOf(
-                "com.facebook.katana",
-                "com.facebook.orca",
-                "com.mipush.sdk"
-            )
-
-            for (pkg in candidateTargetsToFreeze) {
-                // Eğer uygulama aktif olarak ses çalıyor veya ön planda kritik bir iş yürütüyorsa dondurmayı atla
-                if (isPackageRunningImportantTask(context, pkg)) {
-                    Log.i("ZenithGuard", "Güvenlik Atlaması: $pkg kritik bir işlem yürütüyor, dondurulmadı.")
-                    continue
-                }
-
-                shizukuManager.freezePackage(pkg)
-                Log.d("ZenithGuard", "Güvenli Dondurma Uygulandı: $pkg")
-            }
+    fun initialize(): Boolean {
+        return try {
+            initialized = true
+            Log.i(TAG, "Native security engine initialized")
+            true
+        } catch (e: Exception) {
+            initialized = false
+            Log.e(TAG, "Native security engine initialization failed", e)
+            false
         }
     }
 
-    private fun isPackageRunningImportantTask(context: Context, packageName: String): Boolean {
-        // Burada uygulamanın aktif bir foreground servisi veya kritik oturumu olup olmadığı kontrol edilir.
-        // Önemli iş kayıplarını önlemek için varsayılan olarak koruma katmanı eklenmiştir.
-        return false 
+    fun isInitialized(): Boolean {
+        return initialized
     }
+
+    /**
+     * Native engine'in güvenlik taramasını başlatmak için giriş noktası.
+     *
+     * Gerçek C++/JNI motoru eklendiğinde nativeScan() burada çağrılabilir.
+     */
+    fun performSecurityScan(): SecurityScanResult {
+        if (!initialized) {
+            initialize()
+        }
+
+        return SecurityScanResult(
+            success = true,
+            threatsDetected = 0,
+            message = "Native güvenlik motoru hazır."
+        )
+    }
+
+    fun shutdown() {
+        initialized = false
+        Log.i(TAG, "Native security engine stopped")
+    }
+
+    data class SecurityScanResult(
+        val success: Boolean,
+        val threatsDetected: Int,
+        val message: String
+    )
 }
