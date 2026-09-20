@@ -10,46 +10,76 @@ import com.zenithguard.core.ShizukuManager
 class ScreenStateReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == Intent.ACTION_SCREEN_SCREEN_OFF || intent.action == Intent.ACTION_SCREEN_OFF) {
-            val protectionEngine = ProtectionEngine(context)
-            val shizukuManager = ShizukuManager(context)
+        if (intent.action != Intent.ACTION_SCREEN_OFF) {
+            return
+        }
 
-            if (!protectionEngine.isModuleEnabled(ProtectionEngine.MODULE_AUTO_FREEZER, false)) {
-                return
-            }
+        val protectionEngine = ProtectionEngine(context)
+        val shizukuManager = ShizukuManager(context)
 
-            if (!shizukuManager.hasShizukuPermission()) {
-                Log.d("ZenithGuard", "Shizuku yetkisi olmadığından otomatik dondurma atlandı.")
-                return
-            }
-
-            // ÖNEMLİ GÜVENLİK KONTROLÜ: Kullanıcının aktif olarak kullandığı veya kritik öneme sahip 
-            // arka plan işlemleri yürüten uygulamaların (örneğin mesajlaşma, müzik çalma, aktif servisler)
-            // rastgele dondurulmasını engellemek için beyaz liste veya kullanıcı onay kontrolü uygulanır.
-            Log.d("ZenithGuard", "Ekran kapandı! Kritik arka plan süreçleri taranıyor...")
-
-            val candidateTargetsToFreeze = listOf(
-                "com.facebook.katana",
-                "com.facebook.orca",
-                "com.mipush.sdk"
+        if (!protectionEngine.isModuleEnabled(
+                ProtectionEngine.MODULE_AUTO_FREEZER,
+                false
             )
+        ) {
+            return
+        }
 
-            for (pkg in candidateTargetsToFreeze) {
-                // Eğer uygulama aktif olarak ses çalıyor veya ön planda kritik bir iş yürütüyorsa dondurmayı atla
-                if (isPackageRunningImportantTask(context, pkg)) {
-                    Log.i("ZenithGuard", "Güvenlik Atlaması: $pkg kritik bir işlem yürütüyor, dondurulmadı.")
-                    continue
-                }
+        if (!shizukuManager.hasShizukuPermission()) {
+            Log.d(
+                "ZenithGuard",
+                "Shizuku yetkisi olmadığından otomatik dondurma atlandı."
+            )
+            return
+        }
 
-                shizukuManager.freezePackage(pkg)
-                Log.d("ZenithGuard", "Güvenli Dondurma Uygulandı: $pkg")
+        Log.d(
+            "ZenithGuard",
+            "Ekran kapandı. Koruma hedefleri kontrol ediliyor..."
+        )
+
+        val candidateTargetsToFreeze = listOf(
+            "com.facebook.katana",
+            "com.facebook.orca",
+            "com.mipush.sdk"
+        )
+
+        for (packageName in candidateTargetsToFreeze) {
+
+            if (isPackageRunningImportantTask(context, packageName)) {
+                Log.i(
+                    "ZenithGuard",
+                    "Güvenlik atlaması: $packageName kritik işlem yürütüyor."
+                )
+                continue
+            }
+
+            val success = shizukuManager.freezePackage(packageName)
+
+            if (success) {
+                Log.d(
+                    "ZenithGuard",
+                    "Güvenli dondurma uygulandı: $packageName"
+                )
+            } else {
+                Log.w(
+                    "ZenithGuard",
+                    "Dondurma başarısız: $packageName"
+                )
             }
         }
     }
 
-    private fun isPackageRunningImportantTask(context: Context, packageName: String): Boolean {
-        // Burada uygulamanın aktif bir foreground servisi veya kritik oturumu olup olmadığı kontrol edilir.
-        // Önemli iş kayıplarını önlemek için varsayılan olarak koruma katmanı eklenmiştir.
-        return false 
+    private fun isPackageRunningImportantTask(
+        context: Context,
+        packageName: String
+    ): Boolean {
+        /*
+         * İleride ActivityManager / UsageStats / foreground-service
+         * kontrolleri burada uygulanabilir.
+         *
+         * Varsayılan olarak false bırakılıyor.
+         */
+        return false
     }
 }
