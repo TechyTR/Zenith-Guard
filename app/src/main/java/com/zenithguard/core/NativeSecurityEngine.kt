@@ -1,4 +1,3 @@
-
 package com.zenithguard.receivers
 
 import android.content.BroadcastReceiver
@@ -54,4 +53,3 @@ class ScreenStateReceiver : BroadcastReceiver() {
         return false 
     }
 }
-```
