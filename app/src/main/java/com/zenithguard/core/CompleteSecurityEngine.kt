@@ -77,4 +77,3 @@ class CompleteSecurityEngine(private val context: Context) {
         return reports.sortedByDescending { it.riskScore }
     }
 }
-```
