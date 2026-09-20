@@ -1,6 +1,3 @@
-```kotlin
-// DOSYA KONUMU: app/src/main/java/com/zenithguard/core/ProtectionEngine.kt
-
 package com.zenithguard.core
 
 import android.content.Context
@@ -98,4 +95,3 @@ class ProtectionEngine(private val context: Context) {
         return prefs.getBoolean(moduleId, defaultValue)
     }
 }
-```
