@@ -77,4 +77,3 @@ class RootManager {
         return !result.contains("ERROR")
     }
 }
-```
