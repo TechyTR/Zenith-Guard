@@ -1,4 +1,4 @@
-package com.zenithguard.receivers
+package com.zenithguard.receiver
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -9,15 +9,22 @@ import com.zenithguard.core.ShizukuManager
 
 class ScreenStateReceiver : BroadcastReceiver() {
 
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(
+        context: Context,
+        intent: Intent
+    ) {
         if (intent.action != Intent.ACTION_SCREEN_OFF) {
             return
         }
 
-        val protectionEngine = ProtectionEngine(context)
-        val shizukuManager = ShizukuManager(context)
+        val protectionEngine =
+            ProtectionEngine(context)
 
-        if (!protectionEngine.isModuleEnabled(
+        val shizukuManager =
+            ShizukuManager(context)
+
+        if (
+            !protectionEngine.isModuleEnabled(
                 ProtectionEngine.MODULE_AUTO_FREEZER,
                 false
             )
@@ -28,38 +35,49 @@ class ScreenStateReceiver : BroadcastReceiver() {
         if (!shizukuManager.hasShizukuPermission()) {
             Log.d(
                 "ZenithGuard",
-                "Shizuku yetkisi olmadığından otomatik dondurma atlandı."
+                "Shizuku yetkisi yok; " +
+                    "otomatik dondurma atlandı."
             )
             return
         }
 
         Log.d(
             "ZenithGuard",
-            "Ekran kapandı. Koruma hedefleri kontrol ediliyor..."
+            "Ekran kapandı. " +
+                "Koruma hedefleri kontrol ediliyor..."
         )
 
-        val candidateTargetsToFreeze = listOf(
+        val targets = listOf(
             "com.facebook.katana",
             "com.facebook.orca",
             "com.mipush.sdk"
         )
 
-        for (packageName in candidateTargetsToFreeze) {
+        for (packageName in targets) {
 
-            if (isPackageRunningImportantTask(context, packageName)) {
+            if (
+                isPackageRunningImportantTask(
+                    context,
+                    packageName
+                )
+            ) {
                 Log.i(
                     "ZenithGuard",
-                    "Güvenlik atlaması: $packageName kritik işlem yürütüyor."
+                    "Güvenlik atlaması: " +
+                        "$packageName kritik işlem yürütüyor."
                 )
                 continue
             }
 
-            val success = shizukuManager.freezePackage(packageName)
+            val success =
+                shizukuManager.freezePackage(
+                    packageName
+                )
 
             if (success) {
                 Log.d(
                     "ZenithGuard",
-                    "Güvenli dondurma uygulandı: $packageName"
+                    "Dondurma uygulandı: $packageName"
                 )
             } else {
                 Log.w(
@@ -74,12 +92,6 @@ class ScreenStateReceiver : BroadcastReceiver() {
         context: Context,
         packageName: String
     ): Boolean {
-        /*
-         * İleride ActivityManager / UsageStats / foreground-service
-         * kontrolleri burada uygulanabilir.
-         *
-         * Varsayılan olarak false bırakılıyor.
-         */
         return false
     }
 }
