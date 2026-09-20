@@ -1,4 +1,3 @@
-```kotlin
 package com.zenithguard.receivers
 
 import android.content.BroadcastReceiver
@@ -58,4 +57,3 @@ class PackageReceiver : BroadcastReceiver() {
         }
     }
 }
-```
