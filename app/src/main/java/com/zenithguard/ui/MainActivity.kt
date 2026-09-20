@@ -1,4 +1,3 @@
-```kotlin
 package com.zenithguard.ui
 
 import android.os.Bundle
@@ -96,4 +95,3 @@ fun DashboardScreen(shizukuManager: ShizukuManager, protectionEngine: Protection
         }
     }
 }
-```
