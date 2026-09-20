@@ -1,4 +1,3 @@
-```kotlin
 package com.zenithguard.ui.components
 
 import androidx.compose.foundation.background
@@ -81,4 +80,3 @@ fun HeaderBanner() {
         }
     }
 }
-```
