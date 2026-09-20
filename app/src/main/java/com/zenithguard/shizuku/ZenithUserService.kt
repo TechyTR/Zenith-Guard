@@ -1,64 +1,37 @@
 package com.zenithguard.shizuku
 
 import android.os.RemoteException
-import android.util.Log
-import java.io.BufferedReader
-import java.io.InputStreamReader
+import rikka.shizuku.ShizukuBinderWrapper
+import rikka.shizuku.server.IShizukuService
 
 class ZenithUserService : IZenithUserService.Stub() {
-
-    companion object {
-        private const val TAG = "ZenithUserService"
-    }
 
     override fun execute(command: String): String {
         return try {
             val process = Runtime.getRuntime().exec(
-                arrayOf(
-                    "sh",
-                    "-c",
-                    command
-                )
+                arrayOf("sh", "-c", command)
             )
 
-            val reader = BufferedReader(
-                InputStreamReader(process.inputStream)
-            )
+            val stdout = process.inputStream.bufferedReader().use { it.readText() }
+            val stderr = process.errorStream.bufferedReader().use { it.readText() }
 
-            val output = StringBuilder()
+            val exitCode = process.waitFor()
 
-            var line: String?
+            buildString {
+                append("exit=$exitCode")
 
-            while (
-                reader.readLine().also {
-                    line = it
-                } != null
-            ) {
-                output.append(line)
-                output.append('\n')
+                if (stdout.isNotBlank()) {
+                    append("\n")
+                    append(stdout.trim())
+                }
+
+                if (stderr.isNotBlank()) {
+                    append("\n")
+                    append(stderr.trim())
+                }
             }
-
-            process.waitFor()
-
-            output.toString().trim()
-
         } catch (e: Exception) {
-            Log.e(
-                TAG,
-                "Command execution failed",
-                e
-            )
-
-            "ERROR: ${e.localizedMessage}"
+            "error=${e.javaClass.simpleName}: ${e.message}"
         }
-    }
-
-    override fun destroy() {
-        Log.i(
-            TAG,
-            "Zenith UserService shutting down"
-        )
-
-        System.exit(0)
     }
 }
