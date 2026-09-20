@@ -1,4 +1,3 @@
-```kotlin
 package com.zenithguard.ui.components
 
 import android.widget.Toast
@@ -83,4 +82,3 @@ fun ShizukuCard(
         }
     }
 }
-```
