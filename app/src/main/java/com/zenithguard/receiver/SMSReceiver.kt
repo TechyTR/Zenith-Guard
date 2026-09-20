@@ -13,7 +13,7 @@ import com.zenithguard.core.ProtectionEngine
  * Yeni bir APK/uygulama kurulduğunda veya güncellendiğinde
  * güvenlik analizini başlatır.
  */
-class PackageReceiver : BroadcastReceiver() {
+class SMSReceiver : BroadcastReceiver() {
 
     override fun onReceive(
         context: Context,
