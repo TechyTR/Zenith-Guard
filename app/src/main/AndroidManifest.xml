@@ -82,6 +82,10 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            
+            <service
+    android:name=".shizuku.ZenithUserService"
+    android:exported="false" />
 
         </activity>
 
