@@ -1,4 +1,3 @@
-```kotlin
 package com.zenithguard.ui.theme
 
 import androidx.compose.material3.MaterialTheme
@@ -26,4 +25,3 @@ fun ZenithGuardTheme(content: @Composable () -> Unit) {
         content = content
     )
 }
-```
