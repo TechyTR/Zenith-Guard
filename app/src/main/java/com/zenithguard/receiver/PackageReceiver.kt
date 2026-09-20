@@ -1,4 +1,4 @@
-package com.zenithguard.receivers
+package com.zenithguard.receiver
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -7,12 +7,6 @@ import android.content.pm.PackageManager
 import android.util.Log
 import com.zenithguard.core.ProtectionEngine
 
-/**
- * Zenith Guard - Canlı Kurulum Dinleyicisi.
- *
- * Yeni bir APK/uygulama kurulduğunda veya güncellendiğinde
- * güvenlik analizini başlatır.
- */
 class PackageReceiver : BroadcastReceiver() {
 
     override fun onReceive(
@@ -28,9 +22,11 @@ class PackageReceiver : BroadcastReceiver() {
             return
         }
 
-        val packageName = intent.data?.schemeSpecificPart ?: return
+        val packageName =
+            intent.data?.schemeSpecificPart ?: return
 
-        val protectionEngine = ProtectionEngine(context)
+        val protectionEngine =
+            ProtectionEngine(context)
 
         if (
             !protectionEngine.isModuleEnabled(
@@ -43,8 +39,7 @@ class PackageReceiver : BroadcastReceiver() {
 
         Log.d(
             "ZenithGuard",
-            "Yeni uygulama tespit edildi: $packageName. " +
-                "Canlı analiz başlatılıyor..."
+            "Yeni uygulama tespit edildi: $packageName"
         )
 
         analyzePackagePermissions(
@@ -58,12 +53,11 @@ class PackageReceiver : BroadcastReceiver() {
         packageName: String
     ) {
         try {
-            val packageManager = context.packageManager
-
-            val packageInfo = packageManager.getPackageInfo(
-                packageName,
-                PackageManager.GET_PERMISSIONS
-            )
+            val packageInfo =
+                context.packageManager.getPackageInfo(
+                    packageName,
+                    PackageManager.GET_PERMISSIONS
+                )
 
             val requestedPermissions =
                 packageInfo.requestedPermissions
@@ -102,7 +96,7 @@ class PackageReceiver : BroadcastReceiver() {
 
                     android.Manifest.permission.SYSTEM_ALERT_WINDOW -> {
                         suspiciousPermissions.add(
-                            "Ekranda Üst Katman Oluşturma (Overlay)"
+                            "Overlay"
                         )
                     }
                 }
@@ -111,7 +105,7 @@ class PackageReceiver : BroadcastReceiver() {
             if (suspiciousPermissions.isNotEmpty()) {
                 Log.w(
                     "ZenithGuard",
-                    "Hassas izinler tespit edildi: " +
+                    "Hassas izinler: " +
                         "$packageName -> $suspiciousPermissions"
                 )
             }
