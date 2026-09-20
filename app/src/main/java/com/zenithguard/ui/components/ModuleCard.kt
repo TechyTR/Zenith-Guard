@@ -1,4 +1,3 @@
-```kotlin
 package com.zenithguard.ui.components
 
 import androidx.compose.foundation.layout.*
@@ -77,4 +76,3 @@ fun ModuleToggleCard(module: ProtectionModule, onToggleChanged: (Boolean) -> Uni
         }
     }
 }
-```
