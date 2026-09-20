@@ -1,6 +1,3 @@
-```kotlin
-// DOSYA KONUMU: app/src/main/java/com/zenithguard/receivers/PackageReceiver.kt
-
 package com.zenithguard.receivers
 
 import android.content.BroadcastReceiver
@@ -53,4 +50,3 @@ class PackageReceiver : BroadcastReceiver() {
         }
     }
 }
-```
